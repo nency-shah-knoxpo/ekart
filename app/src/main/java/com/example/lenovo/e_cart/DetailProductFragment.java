@@ -1,5 +1,6 @@
 package com.example.lenovo.e_cart;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,16 +16,85 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.UUID;
+
 public class DetailProductFragment extends Fragment {
-String Amount;
-    String Name,Desc;
-EditText mProductName,mProductAmount,mProductDesc;
+
+    private static final String TAG = DetailProductFragment.class.getSimpleName();
+    private static final String ARGS_PRODUCT = TAG + ".ARGS_PRODUCT";
+    private static final String ARGS_CATEGORY_ID = TAG + ".ARGS_CATEGORY_ID";
+
+
+    private Product mProduct;
+    private EditText mProductName, mProductAmount, mProductDesc;
+
+
+    public static DetailProductFragment newInstance(Product product, UUID categoryId) {
+        Bundle args = new Bundle();
+
+        args.putParcelable(ARGS_PRODUCT, product);
+        args.putSerializable(ARGS_CATEGORY_ID, categoryId);
+        DetailProductFragment fragment = new DetailProductFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public interface Callback{
+        void onProductCreated(String name, String description, int amount);
+        void onProductUpdated();
+    }
+
+    private Callback mCallback;
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.add_product, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_save_product:
+                String name = mProductName.getText().toString();
+                String description = mProductDesc.getText().toString();
+                int amount;
+                try{
+                    amount = Integer.parseInt(mProductAmount.getText().toString());
+                }catch(NumberFormatException e){
+                    amount = 0;
+                }
+                if(mProduct != null){
+                    //update product
+                    mProduct.setProductName(name);
+                    mProduct.setProductDesc(description);
+                    mProduct.setProductAmount(amount);
+                    UUID categoryId = (UUID) getArguments().getSerializable(ARGS_CATEGORY_ID);
+
+                    CategoryLab.getInstance(getActivity())
+                            .updateProduct(mProduct,categoryId);
+
+                    mCallback.onProductUpdated();
+                }else{
+                    mCallback.onProductCreated(name, description, amount);
+                }
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallback = (Callback) getActivity();
+    }
+
+    @Override
+    public void onDetach() {
+        mCallback = null;
+        super.onDetach();
     }
 
     @Override
@@ -32,53 +102,31 @@ EditText mProductName,mProductAmount,mProductDesc;
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.menu_item_save_product:
-Product product = new Product();
-                /*CategoryLab.getInstance(getActivity()).addProduct(product,category);
-                Intent intent = ECartActivity
-                        .newIntent(getActivity(), crime.getId());
-                startActivity(intent);*/
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if(getArguments()!=null && getArguments().getParcelable(ARGS_PRODUCT) != null){
+            mProduct = getArguments().getParcelable(ARGS_PRODUCT);
         }
     }
+
+
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.detailproductfragment, container, false);
 
-    mProductName = (EditText) v.findViewById(R.id.DetailProductName);
-    mProductAmount = (EditText) v.findViewById(R.id.DetailProductAmount);
-    mProductDesc = (EditText) v.findViewById(R.id.DetailProductDesc);
-    Name = mProductName.getText().toString();
-    Amount = String.valueOf(mProductAmount.getText().toString());
-    Desc = mProductDesc.getText().toString();
-try {
-    Product product = new Product();
-    product.setProductName(Name);
-    product.setProductDesc(Desc);
-    product.setProductAmount(Integer.parseInt(Amount));
-}
-catch(Exception e)
-{
-    Product product = new Product();
-    product.setProductAmount(0);
+        mProductName = (EditText) v.findViewById(R.id.DetailProductName);
+        mProductAmount = (EditText) v.findViewById(R.id.DetailProductAmount);
+        mProductDesc = (EditText) v.findViewById(R.id.DetailProductDesc);
 
-}
-
-
-
-
-
-
+        if(mProduct!= null){
+            updateUI();
+        }
 
         return v;
+    }
+
+    private void updateUI(){
+        mProductName.setText(mProduct.getProductName());
+        mProductAmount.setText(String.valueOf(mProduct.getProductAmount()));
+        mProductDesc.setText(mProduct.getProductDesc());
     }
 
 }

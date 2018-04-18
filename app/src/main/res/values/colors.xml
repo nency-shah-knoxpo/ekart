@@ -4,5 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="bg_out_of_stock">#ffffff</color>
+    <color name="bg_out_of_stock">#ac9595</color>
 </resources>

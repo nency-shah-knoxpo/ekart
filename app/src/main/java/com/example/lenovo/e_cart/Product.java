@@ -8,6 +8,7 @@ import java.util.UUID;
 public class Product implements Parcelable {
 
     protected Product(Parcel in) {
+        mProductID = (UUID)in.readSerializable();
         mProductName = in.readString();
         mProductDesc = in.readString();
         mProductAmount = in.readInt();
@@ -16,6 +17,7 @@ public class Product implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeSerializable(mProductID);
         dest.writeString(mProductName);
         dest.writeString(mProductDesc);
         dest.writeInt(mProductAmount);
@@ -50,7 +52,6 @@ public class Product implements Parcelable {
 
     public Product() {
         mProductID = UUID.randomUUID();
-
     }
 
 
@@ -87,4 +88,6 @@ public class Product implements Parcelable {
     public void setOutOfStock(boolean outOfStock) {
         mIsOutOfStock = outOfStock;
     }
+
+
 }

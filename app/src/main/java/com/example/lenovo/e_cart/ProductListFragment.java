@@ -2,62 +2,55 @@ package com.example.lenovo.e_cart;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public class CategoryFragment extends Fragment {
+public class ProductListFragment extends Fragment {
+    private static final String TAG = ProductListFragment.class.getSimpleName();
 
+    private static final String TAG_OUT_OF_STOCK_DIALOG = TAG + ".TAG_OUT_OF_STOCK_DIALOG";
+    private static final int REQUEST_OUT_OF_STOCK = 0;
+
+    private static final String ARGS_CATEGORY_ID = TAG + ".ARGS_CATEGORY_ID";
 
     private ProductAdapter mAdapter;
     private RecyclerView mRecyclerView;
-    private static final String ALERT = "Alert";
-    Category mCategory;
     Boolean OkOrCancel;
-    public static final int REQUEST_Boolean = 0;
 
-    public static CategoryFragment newInstance(UUID ID) {
+    public static ProductListFragment newInstance(UUID categoryId) {
         Bundle args = new Bundle();
 
-        args.putSerializable("Category_ID", ID);
-        CategoryFragment fragment = new CategoryFragment();
+        args.putSerializable(ARGS_CATEGORY_ID, categoryId);
+        ProductListFragment fragment = new ProductListFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.categoryfragment, container, false);
+        View v = inflater.inflate(R.layout.fragment_product_list, container, false);
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        CategoryLab categoryLab = CategoryLab.getInstance(getActivity());
+        UUID categoryId = (UUID) getArguments().getSerializable(ARGS_CATEGORY_ID);
+        List<Product> products = categoryLab.getProducts(categoryId);
+        mAdapter = new ProductAdapter(products);
+        mRecyclerView.setAdapter(mAdapter);
 
 
         updateUI();
@@ -70,64 +63,56 @@ public class CategoryFragment extends Fragment {
         updateUI();
     }
 
-    private void updateUI() {
-        CategoryLab categoryLab = CategoryLab.getInstance(getActivity());
-        UUID ID = (UUID) getArguments().getSerializable("Category_ID");
-
-        List<Product> products = categoryLab.getProducts(ID);
-
-        if (mAdapter == null) {
-            mAdapter = new ProductAdapter(products);
-            mRecyclerView.setAdapter(mAdapter);
-        } else {
-            mAdapter.notifyDataSetChanged();
-        }
-
+    public void updateUI() {
+        mAdapter.notifyDataSetChanged();
     }
 
 
     public class ProductHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        Product mProduct;
-        TextView txtProductName, txtProductAmount;
-        ImageButton imgToggle;
+        private Product mProduct;
+        private TextView mProductNameTV, mProductAmountTV;
+        private ImageButton mOutOfStockIB;
 
         public ProductHolder(View itemView) {
             super(itemView);
 
-            txtProductName = (TextView) itemView.findViewById(R.id.txtName);
-            txtProductAmount = (TextView) itemView.findViewById(R.id.txtAmount);
-            imgToggle = (ImageButton) itemView.findViewById(R.id.imgtoggle);
-            imgToggle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            mProductNameTV = (TextView) itemView.findViewById(R.id.txtName);
+            mProductAmountTV = (TextView) itemView.findViewById(R.id.txtAmount);
+            mOutOfStockIB = (ImageButton) itemView.findViewById(R.id.imgtoggle);
 
-
-                    FragmentManager manager = getFragmentManager();
-                    AlertDialogFragment dialog = new AlertDialogFragment();
-                    dialog.setTargetFragment(CategoryFragment.this, REQUEST_Boolean);
-                    dialog.show(manager, ALERT);
-
-                }
-            });
-
+            mOutOfStockIB.setOnClickListener(this);
+            itemView.setOnClickListener(this);
         }
 
 
         public void bindProduct(Product product) {
-            if(product.isOutOfStock()){
-                itemView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.bg_out_of_stock));
-            }else{
+            if (product.isOutOfStock()) {
+                itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.bg_out_of_stock));
+            } else {
                 itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), android.R.color.transparent));
             }
             mProduct = product;
-            txtProductName.setText(mProduct.getProductName());
-            txtProductAmount.setText(String.valueOf(mProduct.getProductAmount()));
+            mProductNameTV.setText(mProduct.getProductName());
+            mProductAmountTV.setText(String.valueOf(mProduct.getProductAmount()));
         }
 
 
         @Override
         public void onClick(View view) {
+            if(view.getId() == R.id.imgtoggle){
+                FragmentManager manager = getFragmentManager();
+                AlertDialogFragment dialog = AlertDialogFragment.newInstance(mProduct.getProductID());
 
+                dialog.setTargetFragment(ProductListFragment.this, REQUEST_OUT_OF_STOCK);
+                dialog.show(manager, TAG_OUT_OF_STOCK_DIALOG);
+            }else{
+                Intent intent = DetailProductActivity.getEditIntent(
+                        getActivity(),
+                        mProduct,
+                        (UUID) getArguments().getSerializable(ARGS_CATEGORY_ID)
+                );
+                startActivity(intent);
+            }
         }
     }
 
@@ -137,14 +122,19 @@ public class CategoryFragment extends Fragment {
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        if (requestCode == REQUEST_Boolean) {
+        if (requestCode == REQUEST_OUT_OF_STOCK) {
 
+            UUID PRO_ID = (UUID) data.getSerializableExtra("PRO_ID");
             OkOrCancel = data.getBooleanExtra(AlertDialogFragment.OkOrCancel, true);
             if (OkOrCancel == true) {
 
+                Product product = CategoryLab.getInstance(getActivity()).getProduct(PRO_ID);
+                product.setOutOfStock(true);
 
             } else {
 
+                Product product = CategoryLab.getInstance(getActivity()).getProduct(PRO_ID);
+                product.setOutOfStock(false);
 
 
             }

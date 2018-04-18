@@ -18,7 +18,7 @@ public class CategoryLab {
         }
         return sCategoryLab;
     }
-
+private ArrayList<Product> listproduct;
     private HashMap<UUID, ArrayList<Product>> mProductMap;
     private static ArrayList<Category> mCategories;
 
@@ -39,7 +39,11 @@ public class CategoryLab {
         mCategories.add(shoes);
         mCategories.add(clothes);
 
-        ArrayList<Product> listproduct = new ArrayList<>();
+        mProductMap.put(electronics.getId(),new ArrayList<Product>());
+        mProductMap.put(shoes.getId(),new ArrayList<Product>());
+        mProductMap.put(clothes.getId(),new ArrayList<Product>());
+
+        /*listproduct = new ArrayList<>();
         for (int i = 0; i <= 25; i++) {
             Product p = new Product();
             p.setProductName("Product" + i);
@@ -50,12 +54,12 @@ public class CategoryLab {
 
         mProductMap.put(electronics.getId(), listproduct);
         mProductMap.put(shoes.getId(), listproduct);
-        mProductMap.put(clothes.getId(), listproduct);
+        mProductMap.put(clothes.getId(), listproduct);*/
 
 
     }
 
-    public static List<Category> getCategories() {
+    public List<Category> getCategories() {
         return mCategories;
     }
 
@@ -70,12 +74,38 @@ public class CategoryLab {
 
     }
 
+    public void updateProduct(Product product, UUID categoryId){
+
+        ArrayList<Product> products = mProductMap.get(categoryId);
+
+        int foundIndex = -1;
+        for(int i=0;i<products.size();i++){
+            Product p = products.get(i);
+            if(p.getProductID() == product.getProductID()){
+                foundIndex = i;
+                break;
+            }
+        }
+        products.set(foundIndex,product);
+
+        mProductMap.put(categoryId,products);
+    }
+
     public List<Product> getProducts(Category category) {
         return getProducts(category.getId());
     }
 
     public List<Product> getProducts(UUID categoryId) {
         return mProductMap.get(categoryId);
+    }
+
+    public Product getProduct(UUID id) {
+        for (Product p : listproduct) {
+            if (p.getProductID().equals(id)) {
+                return p;
+            }
+        }
+        return null;
     }
 
 }

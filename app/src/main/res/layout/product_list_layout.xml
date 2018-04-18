@@ -3,15 +3,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-    android:background="@color/colorAccent">
+    >
 
     <ImageButton
         android:id="@+id/imgtoggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:src="@drawable/ic_action_outofstock"
-        />
+        android:src="@drawable/ic_action_outofstock" />
 
     <TextView
         android:id="@+id/txtName"
