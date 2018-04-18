@@ -1,0 +1,39 @@
+<LinearLayout android:id="@+id/detailproducts"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical">
+
+<EditText
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Product Name"
+    android:gravity="center"
+    android:layout_marginTop="50dp"
+    android:paddingBottom="20dp"
+    android:id="@+id/DetailProductName"
+    />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Product Amount"
+        android:gravity="center"
+        android:paddingBottom="20dp"
+        android:layout_marginTop="50dp"
+        android:id="@+id/DetailProductAmount"
+        android:inputType="number"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Product Description"
+        android:gravity="center"
+        android:layout_marginTop="50dp"
+        android:paddingBottom="20dp"
+        android:id="@+id/DetailProductDesc"
+        />
+
+
+</LinearLayout>

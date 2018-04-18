@@ -1,0 +1,45 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/list_product"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+    android:background="@color/colorAccent">
+
+    <ImageButton
+        android:id="@+id/imgtoggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_action_outofstock"
+        />
+
+    <TextView
+        android:id="@+id/txtName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Product_name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+
+
+        />
+
+    <TextView
+        android:id="@+id/txtAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="30dp"
+        android:layout_toLeftOf="@id/imgtoggle"
+        android:padding="10dp"
+        android:text="Amount"
+        android:textSize="20sp"
+        android:textStyle="bold"
+
+
+        />
+
+
+</RelativeLayout>
+
+
