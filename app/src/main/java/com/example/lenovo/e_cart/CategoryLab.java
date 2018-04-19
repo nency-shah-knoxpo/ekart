@@ -18,7 +18,6 @@ public class CategoryLab {
         }
         return sCategoryLab;
     }
-private ArrayList<Product> listproduct;
     private HashMap<UUID, ArrayList<Product>> mProductMap;
     private static ArrayList<Category> mCategories;
 
@@ -99,9 +98,10 @@ private ArrayList<Product> listproduct;
         return mProductMap.get(categoryId);
     }
 
-    public Product getProduct(UUID id) {
+    public Product getProduct(UUID categoryId, UUID productId) {
+        ArrayList<Product> listproduct = mProductMap.get(categoryId);
         for (Product p : listproduct) {
-            if (p.getProductID().equals(id)) {
+            if (p.getProductID().equals(productId)) {
                 return p;
             }
         }

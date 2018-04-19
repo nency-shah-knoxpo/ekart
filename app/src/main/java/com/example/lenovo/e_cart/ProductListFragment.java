@@ -126,18 +126,13 @@ public class ProductListFragment extends Fragment {
 
             UUID PRO_ID = (UUID) data.getSerializableExtra("PRO_ID");
             OkOrCancel = data.getBooleanExtra(AlertDialogFragment.OkOrCancel, true);
-            if (OkOrCancel == true) {
+            Product product = CategoryLab.getInstance(getActivity()).getProduct(
+                    (UUID) getArguments().getSerializable(ARGS_CATEGORY_ID),
+                    PRO_ID);
 
-                Product product = CategoryLab.getInstance(getActivity()).getProduct(PRO_ID);
-                product.setOutOfStock(true);
+            product.setOutOfStock(OkOrCancel);
 
-            } else {
-
-                Product product = CategoryLab.getInstance(getActivity()).getProduct(PRO_ID);
-                product.setOutOfStock(false);
-
-
-            }
+            updateUI();
 
 
         }

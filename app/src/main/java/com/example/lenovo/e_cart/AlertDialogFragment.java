@@ -15,19 +15,20 @@ import java.util.UUID;
 
 public class AlertDialogFragment extends DialogFragment {
 
+    private static final String TAG = AlertDialogFragment.class.getSimpleName();
+    private static final String ARGS_PRODUCT_ID = TAG + ".ARGS_PRODUCT_ID";
+
     public static final String OkOrCancel = "OkOrCancel";
 
 
     public static AlertDialogFragment newInstance(UUID PRODUCT_ID) {
         Bundle args = new Bundle();
 
-        args.putSerializable("PRO_ID", PRODUCT_ID);
+        args.putSerializable(ARGS_PRODUCT_ID, PRODUCT_ID);
         AlertDialogFragment fragment = new AlertDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
-
-   UUID PRO_ID = (UUID) getArguments().getSerializable("PRO_ID");
 
 
     @Override
@@ -71,7 +72,10 @@ public class AlertDialogFragment extends DialogFragment {
         }
         Intent intent = new Intent();
         intent.putExtra(OkOrCancel, b);
-        intent.putExtra("PRO_ID",PRO_ID);
+
+        UUID productId = (UUID) getArguments().getSerializable(ARGS_PRODUCT_ID);
+
+        intent.putExtra("PRO_ID",productId);
         getTargetFragment()
                 .onActivityResult(getTargetRequestCode(), resultCode, intent);
     }
